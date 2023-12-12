@@ -18,4 +18,9 @@ class Movement_Inputs {
         void key_down(SDL_Scancode scancode, int* x, int* y);
     private:
         std::unordered_map<SDL_Scancode, InputType> input_map;
+        bool is_jumping = false;
+        bool is_ascending = false;
+        int initial_y;
+        int jump_height = 150;
+        int gravity;
 };

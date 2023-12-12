@@ -15,7 +15,13 @@ void Movement_Inputs::key_down(SDL_Scancode scancode, int* x, int* y){
         InputType input_type = iter->second;
         switch (input_type){
             case InputType::SPACE:
-                *y -= 100;
+                if(!is_jumping){
+                    is_jumping = true;
+                    is_ascending = true;
+                    initial_y = *y;
+                    gravity = 0;
+                    std::cout<<"jumped"<<std::endl;
+                }
                 break;
             case InputType::DOWN:
                 *y += 8;
@@ -38,10 +44,8 @@ void Movement_Inputs::key_release(SDL_Scancode scancode, int* x, int* y){
         InputType input_type = iter->second;
         switch (input_type){
             case InputType::SPACE:
-                *y -= -100;
                 break;
             case InputType::DOWN:
-                *y += 2;
                 break;
             case InputType::LEFT:
                 *x -= 2;
@@ -77,4 +81,24 @@ void Movement_Inputs::take_input(int* x, int* y){
             break;
         }
     }
+        if (is_jumping) {
+            if (is_ascending) {
+                *y -= jump_height / gravity;
+                if (gravity == 12) {
+                    is_ascending = false;
+                }
+            } else {
+                *y += jump_height / gravity;
+
+                if (*y == initial_y) {
+                    // If y has reached or gone above the initial position, finish the jump
+                    is_jumping = false;
+                    std::cout << "Finished jumping" << std::endl;
+                }
+            }
+            if(gravity < 16){
+                gravity++;  // Increment gravity for the next frame                
+            }
+
+        }
 }
