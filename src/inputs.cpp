@@ -15,24 +15,14 @@ void Movement_Inputs::key_down(SDL_Scancode scancode, int* x, int* y){
         InputType input_type = iter->second;
         switch (input_type){
             case InputType::SPACE:
-                if(!is_jumping){
-                    is_jumping = true;
-                    velocity = 0.0;
-                    gravity = 1.0;
-                    jump_speed = 5.0;
-                    jump_height = 150.0;
-                    initial_y = *y;
-                    std::cout<<"jumped"<<std::endl;
-                }
-                break;
-            case InputType::DOWN:
-                *y += 8;
+                start_jump(y);
                 break;
             case InputType::LEFT:
-                *x -= 8;
+                std::cout<<"MOVING LEFT ON ON KEYDOWN: "<<moving_left<<std::endl;
+                moving_left = true;
                 break;
             case InputType::RIGHT:
-                *x += 8;
+                moving_right = true;
                 break;
             default:
                 break;
@@ -45,19 +35,48 @@ void Movement_Inputs::key_release(SDL_Scancode scancode, int* x, int* y){
     if(iter != input_map.end()){
         InputType input_type = iter->second;
         switch (input_type){
-            case InputType::SPACE:
-                break;
-            case InputType::DOWN:
-                break;
             case InputType::LEFT:
-                *x -= 2;
+                std::cout<<"MOVING LEFT ON RELEASE: "<<moving_left<<std::endl;
+                moving_left = false;
                 break;
             case InputType::RIGHT:
-                *x += 2;
+                moving_right = false;
                 break;
             default:
                 break;
         }
+    }
+}
+
+void Movement_Inputs::start_jump(int* y){
+    std::cout <<"MOVING LEFT ON JUMP: "<<moving_left<<std::endl;
+    std::cout<<"MOVING RIGHT ON JUMP: "<<moving_right<<std::endl;
+    if(!is_jumping){
+        is_jumping = true;
+        jump_speed = 20.0;
+        velocity = jump_speed;
+        gravity = 1.0;
+        initial_y = *y;
+    }
+}
+
+void Movement_Inputs::update_jump(int* y) {
+    if (is_jumping) {
+        float float_y = static_cast<float>(*y);
+        float_y -= velocity;
+        velocity -= gravity;
+        *y = static_cast<int>(float_y);
+        if (*y == initial_y) {
+            is_jumping = false;
+        }
+    }
+}
+
+void Movement_Inputs::handle_walk(int* x){
+    if(moving_left){
+        *x -= 8;
+    } else if(moving_right){
+        *x += 8;
     }
 }
 
@@ -67,14 +86,11 @@ void Movement_Inputs::take_input(int* x, int* y){
         SDL_Scancode scancode = event.key.keysym.scancode;
         switch (event.type){
         case SDL_QUIT:
+        std::cout<<"quiting"<<std::endl;
             exit(0);
             break;
         case SDL_KEYDOWN:
-            if(event.key.repeat == 0){
-                key_down(scancode, x, y);
-            } else {
-                key_down(scancode, x, y);
-            }
+            key_down(scancode, x, y);
             break;
         case SDL_KEYUP:
             key_release(scancode, x, y);
@@ -83,5 +99,7 @@ void Movement_Inputs::take_input(int* x, int* y){
             break;
         }
     }
+    handle_walk(x);
+    update_jump(y);
 
 }
