@@ -18,7 +18,6 @@ void Movement_Inputs::key_down(SDL_Scancode scancode, int* x, int* y){
                 start_jump(y);
                 break;
             case InputType::LEFT:
-                std::cout<<"MOVING LEFT ON ON KEYDOWN: "<<moving_left<<std::endl;
                 moving_left = true;
                 break;
             case InputType::RIGHT:
@@ -36,7 +35,6 @@ void Movement_Inputs::key_release(SDL_Scancode scancode, int* x, int* y){
         InputType input_type = iter->second;
         switch (input_type){
             case InputType::LEFT:
-                std::cout<<"MOVING LEFT ON RELEASE: "<<moving_left<<std::endl;
                 moving_left = false;
                 break;
             case InputType::RIGHT:
@@ -49,8 +47,6 @@ void Movement_Inputs::key_release(SDL_Scancode scancode, int* x, int* y){
 }
 
 void Movement_Inputs::start_jump(int* y){
-    std::cout <<"MOVING LEFT ON JUMP: "<<moving_left<<std::endl;
-    std::cout<<"MOVING RIGHT ON JUMP: "<<moving_right<<std::endl;
     if(!is_jumping){
         is_jumping = true;
         jump_speed = 20.0;
@@ -99,7 +95,12 @@ void Movement_Inputs::take_input(int* x, int* y){
             break;
         }
     }
-    handle_walk(x);
-    update_jump(y);
 
+    if(moving_left || moving_right){
+        handle_walk(x);
+    }
+
+    if(is_jumping){
+        update_jump(y);
+    }
 }
